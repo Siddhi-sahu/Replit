@@ -8,6 +8,8 @@ export async function initWs(httpServer: HttpServer) {
             origin: "*",
             methods: ["GET", "POST"]
         }
-    })
+    });
+
+
 
 }

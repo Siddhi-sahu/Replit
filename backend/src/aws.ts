@@ -1,4 +1,6 @@
 import { S3 } from "aws-sdk";
+import fs from "fs";
+
 
 //first only copy from base/language to code/ 
 
@@ -57,4 +59,49 @@ export async function copyS3Folder(sourcePrefix: string, destinationPrefix: stri
 
 
 
+
 }
+
+//a function for downloading all the files from a given folder in S3 to our local directory 
+// a specified folder = key
+//file.key = Get the file's key (its full path in the bucket)
+
+export async function fetchS3Folder(key: string, localPath: string): Promise<void> {
+    try {
+        const params = {
+            Bucket: process.env.S3_BUCKET ?? "",
+            Prefix: key
+        }
+
+        const response = await s3.listObjectsV2(params).promise();
+
+        if (response.Contents) {
+            await Promise.all(response.Contents.map(async (file) => {
+                const fileKey = file.Key;
+                if (fileKey) {
+                    const getObjectParams = {
+                        Bucket: process.env.S3_BUCKET ?? "",
+                        Key: fileKey
+                    }
+
+                    const data = await s3.getObject(getObjectParams).promise();
+
+                    if (data.Body) {
+                        const fileData = data.Body;
+                        //remove folder name??
+                        const filePath = `${localPath}/${fileKey.replace(key, "")}`;
+
+                        // await writeFile(filePath, fileData);
+
+                    }
+                }
+            }))
+        }
+
+    } catch (error) {
+        console.error('Error fetching folder:', error);
+    }
+
+}
+
+function writeFile() { }
