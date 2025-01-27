@@ -1,5 +1,6 @@
 import { S3 } from "aws-sdk";
 import fs from "fs";
+import path, { resolve } from "path";
 
 
 //first only copy from base/language to code/ 
@@ -87,11 +88,11 @@ export async function fetchS3Folder(key: string, localPath: string): Promise<voi
                     const data = await s3.getObject(getObjectParams).promise();
 
                     if (data.Body) {
-                        const fileData = data.Body;
+                        const fileData = data.Body as Buffer;
                         //remove folder name??
                         const filePath = `${localPath}/${fileKey.replace(key, "")}`;
 
-                        // await writeFile(filePath, fileData);
+                        await writeFile(filePath, fileData);
 
                     }
                 }
@@ -104,4 +105,27 @@ export async function fetchS3Folder(key: string, localPath: string): Promise<voi
 
 }
 
-function writeFile() { }
+function writeFile(filePath: string, fileData: Buffer): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+        await createFolder(path.dirname(filePath));
+
+        fs.writeFile(filePath, fileData, (err) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve()
+            }
+        })
+    })
+}
+
+function createFolder(dirName: string) {
+    return new Promise<void>((resolve, reject) => {
+        fs.mkdir(dirName, { recursive: true }, (err) => {
+            if (err) {
+                return reject(err)
+            }
+            resolve()
+        })
+    })
+}
