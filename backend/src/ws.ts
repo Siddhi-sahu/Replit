@@ -10,6 +10,14 @@ export async function initWs(httpServer: HttpServer) {
         }
     });
 
+    io.on('connection', async (socket) => {
+        const replId = socket.handshake.query.roomId as string;
+
+        if (!replId) {
+            socket.disconnect()
+        }
+    })
+
 
 
 }
