@@ -26,13 +26,18 @@ export async function initWs(httpServer: HttpServer) {
             return;
         }
 
+        //fetch everything from s3 locally
         await fetchS3Folder(`code/${replId}`, path.join(__dirname, `../temp/${replId}`));
 
+        //and emit a loaded event with all the root content of that specific repl
         socket.emit('loaded', {
-            rootcontent: await fetchDir()
+            //get list of files and directories using fetchDir
+            rootcontent: await fetchDir(path.join(__dirname, `../temp/${replId}`), "")
         })
     })
 
 
 
 }
+
+//how would we emit a event as fetchDir or fetchContent in socket?? do we do it from the frontend?
