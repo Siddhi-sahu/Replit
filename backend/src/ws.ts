@@ -3,7 +3,7 @@ import { Server, Socket } from "socket.io";
 import { TerminalManager } from "./pty";
 import { fetchS3Folder } from "./aws";
 import path from "path";
-import { fetchDir } from "./fs";
+import { fetchDir, fetchFileContent } from "./fs";
 
 
 const terminalManager = new TerminalManager();
@@ -55,6 +55,13 @@ function initHandlers(socket: Socket, replId: string) {
         const dirPath = path.join(__dirname, `../tmp/${replId}/${dir}`);
         const contents = await fetchDir(dirPath, dir);
         callback(contents);
+    });
+
+    socket.on("fetchContent", async ({ path: filepath }: { path: string }, callback) => {
+        const fullPath = path.join(__dirname, `../temp/${replId}/${filepath}`);
+        const data = await fetchFileContent(fullPath);
+        callback(data);
+
     })
 
 

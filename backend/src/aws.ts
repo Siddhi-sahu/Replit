@@ -129,3 +129,13 @@ function createFolder(dirName: string) {
         })
     })
 }
+
+export const saveToS3 = async (key: string, filePath: string, content: string) => {
+    const params = {
+        Bucket: process.env.S3_BUCKET ?? "",
+        Key: `${key}/${filePath}`,
+        Body: content
+    }
+
+    await s3.putObject(params).promise();
+}
